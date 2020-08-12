@@ -4,7 +4,7 @@ INSTALL_PATH=$(DESTDIR)$(PREFIX)/bin/$(TARGET)
 
 VERSION=0.0.0
 
-CFLAGS?=-march=native -mtune=generic -O3 -pipe
+CFLAGS?=-march=native -mtune=generic -O2 -pipe
 CFLAGS+=\
 	-static \
     -Werror=pedantic \

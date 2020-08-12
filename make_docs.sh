@@ -11,6 +11,7 @@ for file in ./src/*.h; do
     printf '%s\n  %s\n' "$fbr" "${file##*/}"
     while read -r line; do
         case "$line" in
+            *'/*'*'*/'*) ;;
             *'/*'*)
                 state=comment 
                 unset desc
@@ -21,7 +22,7 @@ for file in ./src/*.h; do
                 read -r func
                 funcname="${func%%(*}"
                 funcname="${funcname##* }"
-                printf "  %s:\n  %s\n\n$desc\n\n" "$funcname" "$func"
+                printf "  %s:\n  %s\n\n$desc\n" "$funcname" "$func"
                 ;;
             *)
                 [ "$state" = comment ] && desc="$desc    $line\n"
