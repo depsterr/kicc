@@ -22,6 +22,22 @@
 void _m(const char* t, const char *f, const char *fu, const int l, const char *fmt, ...);
 
 /*
+   get env using first arg, as key and if
+   no value is found return the second arg
+ */
+char* xget_env(char* name, char* alt);
+
+/*
+   same as malloc but dies on failure
+ */
+void* xmalloc(size_t size);
+
+/*
+   same as realloc but dies on failure
+ */
+void* xrealloc(void* ptr, size_t size);
+
+/*
    used to match a string against multiple others.
    comp is the string to compare
    count is the amount of strings to compare against

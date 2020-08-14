@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
             break;
         /* update */
         case 17:
-        case 18:
+        case 18
             die("update");
             break;
         /* version */
@@ -80,26 +80,28 @@ int main(int argc, char** argv) {
             extentions = get_kiss_extentions();
             int e = -1;
 
-            for (int n = 0; extentions[n]; n++)
+
+            for (int n = 0; extentions[n]; n++) {
                 /* compare basename, + 6 for skipping over '/kiss-'*/
-                if (!strcmp(strrchr('/', extentions[n]) + 6, argv[1])) {
+                if (!strcmp(strrchr(extentions[n], '/') + 6, argv[1])) {
                     e = n;
                     break;
                 }
+            }
 
             if (e < 0) {
-                printf(CLR_RED "ERROR" CLR_CLEAR " '%s' is not a valid command", argv[1]);
+                printf(CLR_RED "ERROR" CLR_CLEAR " '%s' is not a valid command\n", argv[1]);
                 exit(1);
             }
 
-            char extention_binary[strlen(extentions[e]) + 6];
-
-            char* extention_argv[argc - 1];
-            extention_argv[0] = extention_binary;
+            char* extention_argv[argc];
+            extention_argv[0] = extentions[e];
 
             for (int n = 2; n < argc; n++) {
                 extention_argv[n - 1] = argv[n];
             }
+
+            extention_argv[argc - 1] = (char*)0;
 
             pid_t cpid = fork();
             if (cpid == 0) {
