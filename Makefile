@@ -5,8 +5,7 @@ INSTALL_PATH?=$(DESTDIR)$(PREFIX)/bin/$(TARGET)
 VERSION=0.0.0
 
 CFLAGS?=-march=native -mtune=generic -O2 -pipe
-CFLAGS+=\
-	-static \
+CFLAGS+= -static \
     -Werror=pedantic \
     -Werror=return-local-addr \
     -Werror=missing-prototypes \
@@ -16,7 +15,7 @@ CFLAGS+=\
     -std=c99 \
     -D_FORTIFY_SOURCE=2 \
     -D_POSIX_C_SOURCE=200809L \
-	-DVERSION="\"$(VERSION)\""
+    -DVERSION="\"$(VERSION)\""
 
 OBJECTS=src/kicc-utils.o src/kicc-main.o
 
