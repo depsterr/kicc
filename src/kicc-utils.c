@@ -130,7 +130,7 @@ void usage_and_extentions(void) {
     char desc_buffer[512];
     int size;
 
-    int maxlen = 0;
+    int maxlen = 12;
     for (int n = 0; extentions[n]; n++) {
         size = strlen(strrchr(extentions[n], '/') + 1);
         if (size > maxlen)
@@ -158,6 +158,12 @@ void usage_and_extentions(void) {
 
         close(fd);
     }
+
+    /* free memory just to be sure */
+    for (int n = 0; extentions[n]; n++) {
+        free(extentions[n]);
+    }
+    free(extentions);
 
     exit(0);
 }

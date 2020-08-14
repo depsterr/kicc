@@ -1,0 +1,55 @@
+k / kicc - kiss implemented in POSIX C (WIP)
+============================================
+
+A (work in progress) port of the kiss package manager to POSIX C.
+
+Make targets
+------------
+
+all / default: make binary
+
+install: install binary
+
+clean: clean object files
+
+docs: create "docs" (docs.txt) for internal functions from headers
+
+Contributing
+------------
+
+Feel free to contribute, just beware that all multiline comments that
+start and end on different lines in headers get used as function
+commments by the docs script.
+
+Therefore, when commenting in headers, format comments for functions
+like this:
+
+/*
+    comment text wow descriptive, helpfull yet
+    somewhat short explenation of function.
+ */
+
+Format other comments like this
+
+/* comment */
+/* foo bar */
+
+  Style Guide
+  -----------
+ 
+  functions that are error checking versions / wrappers for existing
+    ones are prefixed with x
+ 
+  the function definition is a single row
+ 
+  char** argv, not char **argv (pointers as part of the datatype, not
+    variable)
+ 
+  put a space before the perenthasis after if, while and for BUT NOT
+    in function calls / definitions
+ 
+  '{' goes on the same line
+ 
+  indentation is 4 spaces (set ts=4 sw=4 expandtab)
+ 
+  multiple_word_vars_and_functions_use_underscore

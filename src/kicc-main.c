@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
             break;
         /* update */
         case 17:
-        case 18
+        case 18:
             die("update");
             break;
         /* version */
