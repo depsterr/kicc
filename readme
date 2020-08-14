@@ -14,6 +14,17 @@ clean: clean object files
 
 docs: create "docs" (docs.txt) for internal functions from headers
 
+What works?
+-----------
+
+[x] listing extentions
+[x] running extentions
+
+  What doesn't work?
+  ------------------
+
+  [x] Mostly everything else
+
 Contributing
 ------------
 
