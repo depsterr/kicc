@@ -7,7 +7,20 @@
 #define CLR_YELLOW "\033[1;33m"
 #define CLR_BLUE   "\033[1;34m"
 
+/*
+   stolen from dylan araps k
+   prints a message (printf formatting), file,
+   function, and the line of code that the
+   macro was triggered. Then exits with
+   a status of 1.
+ */
 #define die(...) _m(CLR_RED ":(" CLR_CLEAR, __FILE__, __func__, __LINE__, __VA_ARGS__),exit(1)
+
+/*
+   stolen from dylan araps k
+   identical to die, except it doesn't exit.
+   usefull for debugging
+ */
 #define msg(...) _m(CLR_GREEN "OK" CLR_CLEAR, __FILE__, __func__, __LINE__, __VA_ARGS__)
 
 /*
