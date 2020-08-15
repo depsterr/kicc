@@ -22,10 +22,9 @@ char* sys_db;
 
 void set_globals(void);
 
-void set_globals(void) {
-    /* set this only when needed */
-    KISS_PATH = (char**)0;
+void usage_and_extentions(void);
 
+void set_globals(void) {
     /* cannot modify memory gotten from getenv */
     KISS_ROOT = xgetenv("KISS_ROOT", "");
     char* root = xmalloc(strlen(KISS_ROOT) + 1);
@@ -43,6 +42,109 @@ void set_globals(void) {
     strcpy(sys_db, KISS_ROOT);
     strapp(sys_db, '/');
     strcat(sys_db, pkg_db);
+
+    char* kp;
+    kp = getenv("KISS_PATH");
+
+    if (kp) {
+        /* amount of paths */
+        int npaths = 2;
+        for (int n = 0; kp[n]; n++)
+            if (kp[n] == ':')
+                npaths++;
+
+        /* memory for array of paths (plus sys_db and null terminator) */
+        KISS_PATH = xmalloc((npaths + 2) * sizeof(char*));
+        KISS_PATH[npaths-1] = sys_db;
+        KISS_PATH[npaths] = (char*)0;
+
+        /* copy string since string from get_env is not editable */
+        char* p = xmalloc(strlen(kp) + 1);
+        strcpy(p, kp);
+        kp = p;
+
+        /* p is the start of the next path */
+        npaths = 0;
+        for (int n = 0;; n++) {
+            if (kp[n] == ':') {
+                KISS_PATH[npaths] = p;
+                kp[n] = '\0';
+                p = &kp[n+1];
+                npaths++;
+            } else if (!kp[n]) {
+                KISS_PATH[npaths] = p;
+                break;
+            }
+        }
+    } else {
+        /* empty path */
+        KISS_PATH = xmalloc(2 * sizeof(char*));
+        KISS_PATH[0] = sys_db;
+        KISS_PATH[1] = (char*)0;
+    }
+
+}
+
+void usage_and_extentions(void) {
+    printf(
+            CLR_YELLOW "->" CLR_CLEAR " kiss [a|b|c|d|i|l|r|s|u|v] [pkg]...\n"
+            CLR_YELLOW "->" CLR_CLEAR " alternatives List and swap to alternatives\n"
+            CLR_YELLOW "->" CLR_CLEAR " build        Build a package\n"
+            CLR_YELLOW "->" CLR_CLEAR " checksum     Generate checksums\n"
+            CLR_YELLOW "->" CLR_CLEAR " download     Pre-download all sources\n"
+            CLR_YELLOW "->" CLR_CLEAR " install      Install a package\n"
+            CLR_YELLOW "->" CLR_CLEAR " list         List installed packages\n"
+            CLR_YELLOW "->" CLR_CLEAR " remove       Remove a package\n"
+            CLR_YELLOW "->" CLR_CLEAR " search       Search for a package\n"
+            CLR_YELLOW "->" CLR_CLEAR " update       Update the system\n"
+            CLR_YELLOW "->" CLR_CLEAR " version      Package manager version\n"
+            "\n"
+            CLR_YELLOW "->" CLR_CLEAR " Installed extensions (kiss-* in PATH)\n"
+            );
+
+    char** extentions;
+    extentions = get_kiss_extentions();
+    
+    int fd;
+    char desc_buffer[512];
+    int size;
+
+    int maxlen = 12;
+    for (int n = 0; extentions[n]; n++) {
+        size = strlen(strrchr(extentions[n], '/') + 1);
+        if (size > maxlen)
+            maxlen = size;
+    }
+
+    for (int n = 0; extentions[n]; n++) {
+        fd = open(extentions[n], O_RDONLY);
+        size = read(fd, desc_buffer, 512);
+        desc_buffer[(size > 0) ? size - 1 : 0] = '\0';
+
+        int i = 0;
+        while (desc_buffer[i] != '\n' && desc_buffer[i])
+            i++;
+        if (desc_buffer[i]) {
+            if (desc_buffer[++i] == '#') {
+                i++;
+                while ((desc_buffer[i] == ' ' || desc_buffer[i] == '\t') && desc_buffer[i])
+                    i++;
+            } else
+                i = 511;
+        }
+
+        printf(CLR_YELLOW "->" CLR_CLEAR " %-*s %s\n", maxlen, strrchr(extentions[n], '/') + 1, &desc_buffer[i]);
+
+        close(fd);
+    }
+
+    /* free memory just to be sure */
+    for (int n = 0; extentions[n]; n++) {
+        free(extentions[n]);
+    }
+    free(extentions);
+
+    exit(0);
 }
 
 int main(int argc, char** argv) {

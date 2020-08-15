@@ -69,47 +69,6 @@ void strapp(char* str, char c) {
     str[len+1] = '\0';
 }
 
-void ready_kiss_path(void) {
-    if (KISS_PATH)
-        return;
-
-    char* kp;
-    kp = getenv("KISS_PATH");
-    if (!kp)
-        /* TODO don't just fail here, some commands do not need KISS_PATH, perhaps */
-        /* set it up when needed instead. */
-        die("KISS_PATH not set");
-
-    /* amount of paths */
-    int npaths = 1;
-    for (int n = 0; kp[n]; n++)
-        if (kp[n] == ':')
-            npaths++;
-
-    /* memory for array of paths (and null terminator) */
-    KISS_PATH = xmalloc((npaths + 1) * sizeof(char*));
-    KISS_PATH[npaths] = (char*)0;
-
-    /* copy string since string from get_env is not editable */
-    char* p = xmalloc(strlen(kp) + 1);
-    strcpy(p, kp);
-    kp = p;
-
-    /* p is the start of the next path */
-    npaths = 0;
-    for (int n = 0;; n++) {
-        if (kp[n] == ':') {
-            KISS_PATH[npaths] = p;
-            kp[n] = '\0';
-            p = &kp[n+1];
-            npaths++;
-        } else if (!kp[n]) {
-            KISS_PATH[npaths] = p;
-            break;
-        }
-    }
-}
-
 char** get_kiss_extentions(void) {
     char* path = xgetenv("PATH", "/bin/");
     char* colon = path;
@@ -156,7 +115,7 @@ char** get_kiss_extentions(void) {
 }
 
 char** get_installed_packages(void) {
-    char** package_paths = 0;
+    char** paths = 0;
     int pathn = 0;
     DIR *d;
     struct dirent *ent;
@@ -180,18 +139,54 @@ char** get_installed_packages(void) {
             }
 
             pathn++;
-            package_paths = xrealloc(package_paths, pathn * sizeof(char*));
-            package_paths[pathn - 1] = path;
+            paths = xrealloc(paths, pathn * sizeof(char*));
+            paths[pathn - 1] = path;
         }
         closedir(d);
-    } else
-        die("could not open package database: '%s'", sys_db);
+    }
 
     /* null byte */
-    package_paths = xrealloc(package_paths, (sizeof(char*)) * (pathn + 1));
-    package_paths[pathn] = (char*)0;
+    paths = xrealloc(paths, (sizeof(char*)) * (pathn + 1));
+    paths[pathn] = (char*)0;
 
-    return package_paths;
+    return paths;
+}
+
+char** get_package_paths(char* pkg) {
+    char** paths = 0;
+    int pathn = 0;
+    for (int n = 0; KISS_PATH[n]; n++) {
+        DIR *d;
+        struct dirent *ent;
+        d = opendir(KISS_PATH[n]);
+        if (d) {
+            while ((ent = readdir(d)) != NULL) {
+                if (!strcmp(ent->d_name, pkg)) {
+                    char* path = xmalloc(strlen(KISS_PATH[n]) + strlen(pkg) + 2);
+                    strcpy(path, KISS_PATH[n]);
+                    strapp(path, '/');
+                    strcat(path, pkg);
+
+                    struct stat statbuf;
+                    if (stat(path, &statbuf) || !S_ISDIR(statbuf.st_mode)) {
+                        free(path);
+                        continue;
+                    }
+
+                    pathn++;
+                    paths = xrealloc(paths, pathn * sizeof(char*));
+                    paths[pathn - 1] = path;
+                }
+            }
+            closedir(d);
+        }
+    }
+
+    /* null byte */
+    paths = xrealloc(paths, (sizeof(char*)) * (pathn + 1));
+    paths[pathn] = (char*)0;
+
+    return paths;
 }
 
 bool is_installed(char* pkg) {
@@ -204,66 +199,4 @@ bool is_installed(char* pkg) {
     }
     free(pkgs);
     return ret;
-}
-
-void usage_and_extentions(void) {
-    printf(
-            CLR_YELLOW "->" CLR_CLEAR " kiss [a|b|c|d|i|l|r|s|u|v] [pkg]...\n"
-            CLR_YELLOW "->" CLR_CLEAR " alternatives List and swap to alternatives\n"
-            CLR_YELLOW "->" CLR_CLEAR " build        Build a package\n"
-            CLR_YELLOW "->" CLR_CLEAR " checksum     Generate checksums\n"
-            CLR_YELLOW "->" CLR_CLEAR " download     Pre-download all sources\n"
-            CLR_YELLOW "->" CLR_CLEAR " install      Install a package\n"
-            CLR_YELLOW "->" CLR_CLEAR " list         List installed packages\n"
-            CLR_YELLOW "->" CLR_CLEAR " remove       Remove a package\n"
-            CLR_YELLOW "->" CLR_CLEAR " search       Search for a package\n"
-            CLR_YELLOW "->" CLR_CLEAR " update       Update the system\n"
-            CLR_YELLOW "->" CLR_CLEAR " version      Package manager version\n"
-            "\n"
-            CLR_YELLOW "->" CLR_CLEAR " Installed extensions (kiss-* in PATH)\n"
-            );
-
-    char** extentions;
-    extentions = get_kiss_extentions();
-    
-    int fd;
-    char desc_buffer[512];
-    int size;
-
-    int maxlen = 12;
-    for (int n = 0; extentions[n]; n++) {
-        size = strlen(strrchr(extentions[n], '/') + 1);
-        if (size > maxlen)
-            maxlen = size;
-    }
-
-    for (int n = 0; extentions[n]; n++) {
-        fd = open(extentions[n], O_RDONLY);
-        size = read(fd, desc_buffer, 512);
-        desc_buffer[(size > 0) ? size - 1 : 0] = '\0';
-
-        int i = 0;
-        while (desc_buffer[i] != '\n' && desc_buffer[i])
-            i++;
-        if (desc_buffer[i]) {
-            if (desc_buffer[++i] == '#') {
-                i++;
-                while ((desc_buffer[i] == ' ' || desc_buffer[i] == '\t') && desc_buffer[i])
-                    i++;
-            } else
-                i = 511;
-        }
-
-        printf(CLR_YELLOW "->" CLR_CLEAR " %-*s %s\n", maxlen, strrchr(extentions[n], '/') + 1, &desc_buffer[i]);
-
-        close(fd);
-    }
-
-    /* free memory just to be sure */
-    for (int n = 0; extentions[n]; n++) {
-        free(extentions[n]);
-    }
-    free(extentions);
-
-    exit(0);
 }

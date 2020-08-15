@@ -137,15 +137,6 @@ kicc internal docs
 
   ------------------------------------------------------------------------------
 
-  ready_kiss_path:
-  void ready_kiss_path(void);
-
-    make sure kiss_path is set up. call this
-    before using kiss_path for the first time in
-    a function.
-
-  ------------------------------------------------------------------------------
-
   get_kiss_extentions:
   char** get_kiss_extentions(void);
 
@@ -169,19 +160,22 @@ kicc internal docs
 
   ------------------------------------------------------------------------------
 
+  get_package_paths:
+  char** get_package_paths(char* pkg);
+
+    returns a null terminated array of strings
+    containing the paths to all packages
+    in KISS_PATH matching the given name.
+    
+    REMEMBER TO FREE RETURNED VALUES AFTER USE.
+
+  ------------------------------------------------------------------------------
+
   is_installed:
   bool is_installed(char* pkg);
 
     takes the name of a package as a string
     and returns true if it's installed and
     false if it's not installed
-
-  ------------------------------------------------------------------------------
-
-  usage_and_extentions:
-  void usage_and_extentions(void);
-
-    prints usage and extensions and then exits
-    with the exit status 0
 
   ------------------------------------------------------------------------------

@@ -68,13 +68,6 @@ int match_strings(const char* comp, unsigned int count, ...);
 void strapp(char* str, char c);
 
 /*
-   make sure kiss_path is set up. call this
-   before using kiss_path for the first time in
-   a function.
- */
-void ready_kiss_path(void);
-
-/*
    returns a null terminated array of strings
    representing the paths to all of the
    available kiss extensions. (binaries in path
@@ -94,14 +87,17 @@ char** get_kiss_extentions(void);
 char** get_installed_packages(void);
 
 /*
+   returns a null terminated array of strings
+   containing the paths to all packages
+   in KISS_PATH matching the given name.
+
+   REMEMBER TO FREE RETURNED VALUES AFTER USE.
+ */
+char** get_package_paths(char* pkg);
+
+/*
    takes the name of a package as a string
    and returns true if it's installed and
    false if it's not installed
  */
 bool is_installed(char* pkg);
-
-/*
-   prints usage and extensions and then exits
-   with the exit status 0
- */
-void usage_and_extentions(void);
