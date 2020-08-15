@@ -30,16 +30,16 @@ Contributing
 ------------
 
 Feel free to contribute, just beware that all multiline comments that
-start and end on different lines in headers get used as function
-commments by the docs script.
+start and end on different lines in headers get used by the docs script
 
 Therefore, when commenting in headers, format comments for functions
-like this:
+and global variables like this:
 
 /*
     comment text wow descriptive, helpfull yet
     somewhat short explenation of function.
  */
+foo* bar(void);
 
 Format other comments like this
 
