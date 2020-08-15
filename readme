@@ -12,25 +12,34 @@ install: install binary
 
 clean: clean object files
 
-docs: create "docs" (docs.txt) from comments in headers
+docs: generate "docs" (docs.txt) from comments in headers
 
 What works?
 -----------
 
-[x] listing extentions
-[x] running extentions
-[x] list packages
+[x] Listing extentions
+[x] Running extentions
+[x] List packages
 
   What doesn't work?
   ------------------
 
-  [x] everything else
+  [x] Everything else
+
+What do the scripts do?
+-----------------------
+
+make_docs.sh is what make uses to make docs.txt. Since
+it outputs to stdout you can pipe into a pager.
+
+lookup.sh searches the docs for substrings and then
+prints the comment for the matching items.
 
 Contributing
 ------------
 
 Feel free to contribute, just beware that all multiline comments that
-start and end on different lines in headers get used by the docs script
+start and end on different lines in headers get used by the docs script.
 
 Therefore, when commenting in headers, format comments for functions
 and global variables like this:
@@ -49,19 +58,19 @@ Format other comments like this
   Style Guide
   -----------
  
-  functions that are error checking versions / wrappers for existing
+  Functions that are error checking versions / wrappers for existing
     ones are prefixed with x
  
-  the function definition is a single row
+  The function definition is a single row
  
   char** argv, not char **argv (pointers as part of the datatype, not
     variable)
  
-  put a space before the perenthasis after if, while and for BUT NOT
+  Put a space before the perenthasis after if, while and for BUT NOT
     in function calls / definitions
  
   '{' goes on the same line
  
-  indentation is 4 spaces (set ts=4 sw=4 expandtab)
+  Indentation is 4 spaces (set ts=4 sw=4 expandtab)
  
   multiple_word_vars_and_functions_use_underscore
