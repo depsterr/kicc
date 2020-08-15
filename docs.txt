@@ -1,0 +1,141 @@
+kicc internal docs
+================================================================================
+  kicc-build.h
+  ------------------------------------------------------------------------------
+
+  build:
+  void build(char** pkg_names, int pkg_count);
+
+    this is the main build function which handles prompts
+    and then calling the functions which actually build
+    the package.
+    
+    it takes two arguments, an array of strings as well
+    as the length of the list.
+
+  ------------------------------------------------------------------------------
+
+  add_depends:
+  char** add_depends(char** pkg_names, int* pkg_count);
+
+    this is a function which is responsible for handeling
+    depends at the higest level. it recieves a list of package
+    names which it then resolver the depends for and allocates
+    memory for a new list to store all depends in. It also
+    takes a count argument which is modified after depends
+    are added to the new list.
+
+================================================================================
+  kicc-globals.h
+  ------------------------------------------------------------------------------
+
+  KISS_ROOT:
+  extern char* KISS_ROOT;
+
+    The ROOT directory to use for all operations,
+    this makes creating chroots very easy.
+
+  ------------------------------------------------------------------------------
+
+  pkg_db:
+  extern char* pkg_db;
+
+    The path to the package database relative to
+    the root directory.
+
+  ------------------------------------------------------------------------------
+
+  sys_db:
+  extern char* sys_db;
+
+    The full path to the package database.
+
+================================================================================
+  kicc-utils.h
+  ------------------------------------------------------------------------------
+
+  _m:
+  void _m(const char* t, const char *f, const char *fu, const int l, const char *fmt, ...);
+
+    stolen from dylan araps k
+    used to print debug messages
+    t is type of message
+    f is the file the message arose from
+    fu is the function the message arose from
+    l is the line the message arose from
+    fmt and .. are passed as args to printf
+
+  ------------------------------------------------------------------------------
+
+  xget_env:
+  char* xget_env(char* name, char* alt);
+
+    get env using first arg, as key and if
+    no value is found return the second arg
+
+  ------------------------------------------------------------------------------
+
+  xmalloc:
+  void* xmalloc(size_t size);
+
+    same as malloc but dies on failure
+
+  ------------------------------------------------------------------------------
+
+  xrealloc:
+  void* xrealloc(void* ptr, size_t size);
+
+    same as realloc but dies on failure
+
+  ------------------------------------------------------------------------------
+
+  match_strings:
+  int match_strings(const char* comp, unsigned int count, ...);
+
+    used to match a string against multiple others.
+    comp is the string to compare
+    count is the amount of strings to compare against
+    ... are the strings to compare against
+    
+    returns -1 on failure and 1 indexed string
+    index on successful match.
+
+  ------------------------------------------------------------------------------
+
+  strapp:
+  void strapp(char* str, char c);
+
+    appends a char to the end of a string
+
+  ------------------------------------------------------------------------------
+
+  get_kiss_extentions:
+  char** get_kiss_extentions(void);
+
+    returns a null terminated array of strings
+    representing the paths to all of the
+    available kiss extensions. (binaries in path
+    named kiss-*).
+    
+    REMEMBER TO FREE RETURNED VALUES AFTER USE.
+
+  ------------------------------------------------------------------------------
+
+  get_installed_packages:
+  char** get_installed_packages(void);
+
+    returns a null terminated array of strings
+    containing the names of all installed
+    packages.
+    
+    REMEMBER TO FREE RETURNED VALUES AFTER USE.
+
+  ------------------------------------------------------------------------------
+
+  usage_and_extentions:
+  void usage_and_extentions(void);
+
+    prints usage and extensions and then exits
+    with the exit status 0
+
+  ------------------------------------------------------------------------------
