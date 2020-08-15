@@ -233,8 +233,21 @@ int main(int argc, char** argv) {
         /* search */
         case 15:
         case 16:
-            die("search");
-            break;
+            if (argv[2]) {
+                char** paths;
+                for (int a = 2; a < argc; a++) {
+                    paths = get_package_paths(argv[a]);
+                    if (!paths[0]) {
+                        printf(CLR_RED "ERROR" CLR_CLEAR " Package '%s' not in any repository\n", argv[a]);
+                        free(paths);
+                        continue;
+                    }
+                    for (int n = 0; paths[n]; n++) {
+                        printf("%s\n", paths[n]);
+                    }
+                }
+            }
+            exit(0);
         /* update */
         case 17:
         case 18:

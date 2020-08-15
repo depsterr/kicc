@@ -17,9 +17,10 @@ docs: generate "docs" (docs.txt) from comments in headers
 What works?
 -----------
 
-[x] Listing extentions
-[x] Running extentions
-[x] List packages
+[x] List packages (kiss l)
+[x] Search packages (kiss s)
+[x] Listing extentions (kiss)
+[x] Running extentions (kiss <extention>)
 
   What doesn't work?
   ------------------
