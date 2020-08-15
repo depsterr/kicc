@@ -12,7 +12,7 @@ install: install binary
 
 clean: clean object files
 
-docs: create "docs" (docs.txt) for internal functions from headers
+docs: create "docs" (docs.txt) from comments in headers
 
 What works?
 -----------
