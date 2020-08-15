@@ -25,7 +25,7 @@ void _m(const char* t, const char *f, const char *fu, const int l, const char *f
     va_end(args);
 }
 
-char* xget_env(char* name, char* alt) {
+char* xgetenv(char* name, char* alt) {
     char* env = getenv(name);
     return env ? env : alt;
 }
@@ -69,8 +69,49 @@ void strapp(char* str, char c) {
     str[len+1] = '\0';
 }
 
+void ready_kiss_path(void) {
+    if (KISS_PATH)
+        return;
+
+    char* kp;
+    kp = getenv("KISS_PATH");
+    if (!kp)
+        /* TODO don't just fail here, some commands do not need KISS_PATH, perhaps */
+        /* set it up when needed instead. */
+        die("KISS_PATH not set");
+
+    /* amount of paths */
+    int npaths = 1;
+    for (int n = 0; kp[n]; n++)
+        if (kp[n] == ':')
+            npaths++;
+
+    /* memory for array of paths (and null terminator) */
+    KISS_PATH = xmalloc((npaths + 1) * sizeof(char*));
+    KISS_PATH[npaths] = (char*)0;
+
+    /* copy string since string from get_env is not editable */
+    char* p = xmalloc(strlen(kp) + 1);
+    strcpy(p, kp);
+    kp = p;
+
+    /* p is the start of the next path */
+    npaths = 0;
+    for (int n = 0;; n++) {
+        if (kp[n] == ':') {
+            KISS_PATH[npaths] = p;
+            kp[n] = '\0';
+            p = &kp[n+1];
+            npaths++;
+        } else if (!kp[n]) {
+            KISS_PATH[npaths] = p;
+            break;
+        }
+    }
+}
+
 char** get_kiss_extentions(void) {
-    char* path = xget_env("PATH", "/bin/");
+    char* path = xgetenv("PATH", "/bin/");
     char* colon = path;
 
     char** extentions = 0;
@@ -151,6 +192,18 @@ char** get_installed_packages(void) {
     package_paths[pathn] = (char*)0;
 
     return package_paths;
+}
+
+bool is_installed(char* pkg) {
+    char** pkgs = get_installed_packages();
+    bool ret = false;
+    for (int n = 0; pkgs[n]; n++) {
+        if(!strcmp(strrchr(pkgs[n], '/') + 1, pkg))
+            ret = true;
+        free(pkgs[n]);
+    }
+    free(pkgs);
+    return ret;
 }
 
 void usage_and_extentions(void) {

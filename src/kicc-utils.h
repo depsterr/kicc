@@ -1,5 +1,6 @@
 /* licensed under The MIT License */
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define CLR_CLEAR  "\033[m"
 #define CLR_RED    "\033[1;31m"
@@ -35,10 +36,10 @@
 void _m(const char* t, const char *f, const char *fu, const int l, const char *fmt, ...);
 
 /*
-   get env using first arg, as key and if
+   getenv using first arg, as key and if
    no value is found return the second arg
  */
-char* xget_env(char* name, char* alt);
+char* xgetenv(char* name, char* alt);
 
 /*
    same as malloc but dies on failure
@@ -67,6 +68,13 @@ int match_strings(const char* comp, unsigned int count, ...);
 void strapp(char* str, char c);
 
 /*
+   make sure kiss_path is set up. call this
+   before using kiss_path for the first time in
+   a function.
+ */
+void ready_kiss_path(void);
+
+/*
    returns a null terminated array of strings
    representing the paths to all of the
    available kiss extensions. (binaries in path
@@ -84,6 +92,13 @@ char** get_kiss_extentions(void);
    REMEMBER TO FREE RETURNED VALUES AFTER USE.
  */
 char** get_installed_packages(void);
+
+/*
+   takes the name of a package as a string
+   and returns true if it's installed and
+   false if it's not installed
+ */
+bool is_installed(char* pkg);
 
 /*
    prints usage and extensions and then exits

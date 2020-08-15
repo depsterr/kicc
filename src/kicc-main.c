@@ -11,18 +11,23 @@
 #include "kicc-build.h"
 
 /* globals */
+char** KISS_PATH;
 char* KISS_ROOT;
 char* pkg_db;
 char* sys_db;
 
-int main(int argc, char** argv) {
-    if(!argv[1])
-        usage_and_extentions();
+/* TODO, set up some sort of exit function which clears globals (freeing memory */
+/* before exiting is good practice, even though it's redundant on most sane */
+/* systems.) */
 
-    /* setup global vars */
+void set_globals(void);
+
+void set_globals(void) {
+    /* set this only when needed */
+    KISS_PATH = (char**)0;
 
     /* cannot modify memory gotten from getenv */
-    KISS_ROOT = xget_env("KISS_ROOT", "");
+    KISS_ROOT = xgetenv("KISS_ROOT", "");
     char* root = xmalloc(strlen(KISS_ROOT) + 1);
     strcpy(root, KISS_ROOT);
     KISS_ROOT = root;
@@ -31,13 +36,20 @@ int main(int argc, char** argv) {
     for(int len = strlen(KISS_ROOT); KISS_ROOT[len-1] == '/'; len--)
         KISS_ROOT[len-1] = '\0';
 
-    pkg_db = xget_env("pkg_db", "var/db/kiss/installed");
+    pkg_db = xgetenv("pkg_db", "var/db/kiss/installed");
 
     /* +2 leaves space for slash and nullbyte */
     sys_db = xmalloc(strlen(pkg_db) + strlen(KISS_ROOT) + 2);
     strcpy(sys_db, KISS_ROOT);
     strapp(sys_db, '/');
     strcat(sys_db, pkg_db);
+}
+
+int main(int argc, char** argv) {
+    if(!argv[1])
+        usage_and_extentions();
+
+    set_globals();
 
     switch(match_strings(argv[1], 20,
                 "alternatives", "a",

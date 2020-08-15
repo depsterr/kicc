@@ -1,4 +1,10 @@
 /*
+   A null terminated array of strings which
+   represent the paths in KISS_PATH
+ */
+extern char** KISS_PATH;
+
+/*
    The ROOT directory to use for all operations,
    this makes creating chroots very easy.
  */

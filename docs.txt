@@ -29,6 +29,14 @@ kicc internal docs
   kicc-globals.h
   ------------------------------------------------------------------------------
 
+  KISS_PATH:
+  extern char** KISS_PATH;
+
+    A null terminated array of strings which
+    represent the paths in KISS_PATH
+
+  ------------------------------------------------------------------------------
+
   KISS_ROOT:
   extern char* KISS_ROOT;
 
@@ -87,10 +95,10 @@ kicc internal docs
 
   ------------------------------------------------------------------------------
 
-  xget_env:
-  char* xget_env(char* name, char* alt);
+  xgetenv:
+  char* xgetenv(char* name, char* alt);
 
-    get env using first arg, as key and if
+    getenv using first arg, as key and if
     no value is found return the second arg
 
   ------------------------------------------------------------------------------
@@ -129,6 +137,15 @@ kicc internal docs
 
   ------------------------------------------------------------------------------
 
+  ready_kiss_path:
+  void ready_kiss_path(void);
+
+    make sure kiss_path is set up. call this
+    before using kiss_path for the first time in
+    a function.
+
+  ------------------------------------------------------------------------------
+
   get_kiss_extentions:
   char** get_kiss_extentions(void);
 
@@ -149,6 +166,15 @@ kicc internal docs
     packages.
     
     REMEMBER TO FREE RETURNED VALUES AFTER USE.
+
+  ------------------------------------------------------------------------------
+
+  is_installed:
+  bool is_installed(char* pkg);
+
+    takes the name of a package as a string
+    and returns true if it's installed and
+    false if it's not installed
 
   ------------------------------------------------------------------------------
 
