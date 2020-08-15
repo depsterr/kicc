@@ -22,6 +22,7 @@ for file in ./src/*.h; do
                 read -r func
                 funcname="${func%%(*}"
                 funcname="${funcname##* }"
+                funcname="${funcname%;}"
                 printf "  %s:\n  %s\n\n$desc\n" "$funcname" "$func"
                 ;;
             *)

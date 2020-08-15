@@ -49,6 +49,11 @@ void* xrealloc(void* ptr, size_t size);
 int match_strings(const char* comp, unsigned int count, ...);
 
 /*
+   appends a char to the end of a string
+ */
+void strapp(char* str, char c);
+
+/*
    returns a null terminated array of strings
    representing the paths to all of the
    available kiss extensions. (binaries in path
@@ -57,6 +62,15 @@ int match_strings(const char* comp, unsigned int count, ...);
    REMEMBER TO FREE RETURNED VALUES AFTER USE.
  */
 char** get_kiss_extentions(void);
+
+/*
+   returns a null terminated array of strings
+   containing the names of all installed
+   packages.
+
+   REMEMBER TO FREE RETURNED VALUES AFTER USE.
+ */
+char** get_installed_packages(void);
 
 /*
    prints usage and extensions and then exits

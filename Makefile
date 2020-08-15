@@ -17,7 +17,7 @@ CFLAGS+=-static \
     -D_POSIX_C_SOURCE=200809L \
     -DVERSION="\"$(VERSION)\""
 
-OBJECTS=src/kicc-utils.o src/kicc-main.o
+OBJECTS=src/kicc-utils.o src/kicc-main.o src/kicc-build.o
 
 all: $(TARGET)
 

@@ -1,16 +1,43 @@
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include "kicc-utils.h"
+#include "kicc-build.h"
+
+/* globals */
+char* KISS_ROOT;
+char* pkg_db;
+char* sys_db;
 
 int main(int argc, char** argv) {
     if(!argv[1])
         usage_and_extentions();
 
-    /* TODO set up global vars */
+    /* setup global vars */
+
+    /* cannot modify memory gotten from getenv */
+    KISS_ROOT = xget_env("KISS_ROOT", "");
+    char* root = xmalloc(strlen(KISS_ROOT) + 1);
+    strcpy(root, KISS_ROOT);
+    KISS_ROOT = root;
+
+    /* remove trailing slash from KISS_ROOT */
+    for(int len = strlen(KISS_ROOT); KISS_ROOT[len-1] == '/'; len--)
+        KISS_ROOT[len-1] = '\0';
+
+    pkg_db = xget_env("pkg_db", "var/db/kiss/installed");
+
+    /* +2 leaves space for slash and nullbyte */
+    sys_db = xmalloc(strlen(pkg_db) + strlen(KISS_ROOT) + 2);
+    strcpy(sys_db, KISS_ROOT);
+    strapp(sys_db, '/');
+    strcat(sys_db, pkg_db);
 
     switch(match_strings(argv[1], 20,
                 "alternatives", "a",
@@ -31,7 +58,11 @@ int main(int argc, char** argv) {
         /* build */
         case 3:
         case 4:
-            die("build");
+            if (argv[2])
+                build(&argv[2], argc - 2);
+            else
+                build(&"kicc", 1);
+            exit(0);
             break;
         /* checksum */
         case 5:
@@ -50,9 +81,36 @@ int main(int argc, char** argv) {
             break;
         /* list */
         case 11:
-        case 12:
-            die("list");
-            break;
+        case 12:;
+            char** packages = get_installed_packages();
+            int fp;
+            char version[32];
+            char* path;
+            size_t size;
+            for (int n = 0; packages[n]; n++) {
+                /* space for /, \0 and version */
+                path = xmalloc(strlen(packages[n]) + 9);
+                strcpy(path, packages[n]);
+                strapp(path, '/');
+                strcat(path, "version");
+
+                if (!access(path, F_OK|R_OK)) {
+                    fp = open(path, O_RDONLY);
+                    size = read(fp, version, 32);
+                    version[size - 1] = '\0';
+                } else
+                    version[0] = '\0';
+
+                printf("%s %s\n", strrchr(packages[n], '/') + 1, version);
+
+                /* free memory before exiting just to be sure */
+                free(path);
+                free(packages[n]);
+            }
+
+            /* free memory before exiting just to be sure */
+            free(packages);
+            exit(0);
         /* remove */
         case 13:
         case 14:
@@ -73,7 +131,6 @@ int main(int argc, char** argv) {
         case 20:
             printf(VERSION "\n");
             exit(0);
-            break;
         /* kiss extention */
         default: ;
             char** extentions;
@@ -122,4 +179,5 @@ int main(int argc, char** argv) {
 
             exit(WEXITSTATUS(status));
     }
+    die("UNRECHABLE, CONTACT DEVS!");
 }

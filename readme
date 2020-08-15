@@ -19,11 +19,12 @@ What works?
 
 [x] listing extentions
 [x] running extentions
+[x] list packages
 
   What doesn't work?
   ------------------
 
-  [x] Mostly everything else
+  [x] everything else
 
 Contributing
 ------------

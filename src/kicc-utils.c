@@ -6,9 +6,11 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "kicc-utils.h"
+#include "kicc-globals.h"
 
 void _m(const char* t, const char *f, const char *fu, const int l, const char *fmt, ...) {
 
@@ -61,6 +63,12 @@ int match_strings(const char* comp, unsigned int count, ...) {
     return -1;
 }
 
+void strapp(char* str, char c) {
+    int len = strlen(str);
+    str[len] = c;
+    str[len+1] = '\0';
+}
+
 char** get_kiss_extentions(void) {
     char* path = xget_env("PATH", "/bin/");
     char* colon = path;
@@ -85,7 +93,7 @@ char** get_kiss_extentions(void) {
                     extentions = xrealloc(extentions, (sizeof(char*)) * extn);
                     extentions[extn - 1] = xmalloc(strlen(ent->d_name) + strlen(path) + 2);
                     strcpy(extentions[extn - 1], path);
-                    strcat(extentions[extn - 1], "/");
+                    strapp(extentions[extn - 1], '/');
                     strcat(extentions[extn - 1], ent->d_name);
                     if(access(extentions[extn - 1], X_OK) == -1) {
                         extn--;
@@ -104,6 +112,45 @@ char** get_kiss_extentions(void) {
     extentions[extn] = (char*)0;
 
     return extentions;
+}
+
+char** get_installed_packages(void) {
+    char** package_paths = 0;
+    int pathn = 0;
+    DIR *d;
+    struct dirent *ent;
+    d = opendir(sys_db);
+    if (d) {
+        while ((ent = readdir(d)) != NULL) {
+            /* skip hidden entries */
+            if (ent->d_name[0] == '.')
+                continue;
+            /* TODO make global vars string size global to avoid */
+            /* multiple strlens on the same string */
+            char* path = xmalloc(strlen(ent->d_name) + strlen(sys_db) + 2);
+            strcpy(path, sys_db);
+            strapp(path, '/');
+            strcat(path, ent->d_name);
+
+            struct stat statbuf;
+            if (stat(path, &statbuf) || !S_ISDIR(statbuf.st_mode)) {
+                free(path);
+                continue;
+            }
+
+            pathn++;
+            package_paths = xrealloc(package_paths, pathn * sizeof(char*));
+            package_paths[pathn - 1] = path;
+        }
+        closedir(d);
+    } else
+        die("could not open package database: '%s'", sys_db);
+
+    /* null byte */
+    package_paths = xrealloc(package_paths, (sizeof(char*)) * (pathn + 1));
+    package_paths[pathn] = (char*)0;
+
+    return package_paths;
 }
 
 void usage_and_extentions(void) {
